@@ -3,6 +3,7 @@ package top.jiakaic.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,7 +160,7 @@ public class ArticleServiceImpl implements ArticleService {
         SysUser sysUser = UserThreadLocal.get();
         Article article = new Article();
         article.setAuthorId(sysUser.getId());
-        article.setCategoryId(articleParams.getCategory().getId());
+        article.setCategoryId(Long.getLong(articleParams.getCategory().getId()));
         article.setCreateDate(System.currentTimeMillis());
         article.setCommentCounts(0);
         article.setSummary(articleParams.getSummary());
@@ -175,7 +176,7 @@ public class ArticleServiceImpl implements ArticleService {
             for (TagVo tagVo : tagVos) {
                 ArticleTag articleTag = new ArticleTag();
                 articleTag.setArticleId(article.getId());
-                articleTag.setTagId(tagVo.getId());
+                articleTag.setTagId(article.getId());
                 this.articleTagMapper.insert(articleTag);
             }
         }
@@ -190,7 +191,7 @@ public class ArticleServiceImpl implements ArticleService {
         //
         articleMapper.updateById(article);
         ArticleVo articleVo = new ArticleVo();
-        articleVo.setId(article.getId());
+        articleVo.setId(String.valueOf(article.getId()));
         return Result.success(articleVo);
     }
 
@@ -214,12 +215,13 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleVo copy(Article article, boolean hasTag, boolean hasUser, boolean hasBody, boolean hasCategory) {
         ArticleVo articleVo = new ArticleVo();
         BeanUtils.copyProperties(article, articleVo);
+        articleVo.setId(String.valueOf(article.getId()));
         articleVo.setCreateDate(new DateTime(article.getCreateDate()).toString("yyyy-MM-dd HH:mm"));
         if (hasTag) {
-            articleVo.setTags(tagService.findTagsByArticleId(articleVo.getId()));
+            articleVo.setTags(tagService.findTagsByArticleId(article.getId()));
         }
         if (hasUser) {
-            articleVo.setAuthor(sysUserService.findUserNameByArticleId(articleVo.getId()).getNickname());
+            articleVo.setAuthor(sysUserService.findUserNameByArticleId(article.getId()).getNickname());
         }
         if (hasBody) {
             articleVo.setBody(findArticleBodyById(article.getBodyId()));

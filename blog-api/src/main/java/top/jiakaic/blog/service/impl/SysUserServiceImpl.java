@@ -93,7 +93,7 @@ public class SysUserServiceImpl implements SysUserService {
         UserVo userVo = new UserVo();
         userVo.setAvatar(sysUser.getAvatar());
         userVo.setNickname(sysUser.getNickname());
-        userVo.setId(sysUser.getId());
+        userVo.setId(String.valueOf(sysUser.getId()));
         return userVo;
     }
 }

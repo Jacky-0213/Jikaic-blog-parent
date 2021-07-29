@@ -4,6 +4,7 @@ import com.sun.mail.imap.protocol.ID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.jiakaic.blog.common.aop.LogAnnotation;
+import top.jiakaic.blog.common.cache.Cache;
 import top.jiakaic.blog.dos.Archives;
 import top.jiakaic.blog.pojo.Article;
 import top.jiakaic.blog.service.ArticleService;
@@ -31,6 +32,7 @@ public class ArticleController {
         return articleService.listArticles(pageParams);
     }
     @PostMapping("/hot")
+    @Cache(expire = 5 * 60 * 1000,name = "hot_article")
     public Result hotArticles(){
         int limit = 5;
         List<Article> articles = articleService.hotArtilces(limit);
